@@ -1,516 +1,642 @@
-Marketplace Catalog Quality Monitor
-Project Type: Analytics / Data Product
-Version: v1.0
-Status: Proposed / Prototype
-Primary Users: Marketplace Catalog / Operations Teams
-Secondary Users: Seller Operations, Data Analysts, Product Managers
-Product Owner: Marketplace Operations / Data Team
+## Marketplace Catalog Quality Monitor
 
-1. Product Overview
+**Project Type:** Analytics / Data Product  
+**Version:** v1.0  
+**Status:** Proposed / Prototype  
+**Primary Users:** Marketplace Catalog / Operations Teams  
+**Secondary Users:** Seller Operations, Data Analysts, Product Managers  
+**Product Owner:** Marketplace Operations / Data Team
+
+---
+
+# 1. Product Overview
+
 The Marketplace Catalog Quality Monitor is an analytics and data-quality product designed to help marketplace operations teams detect inconsistent product, pricing, inventory, and seller-feed data before it creates customer-facing catalog problems.
+
 The product processes seller catalog feeds through a validation pipeline, identifies data-quality issues, assigns severity, stores the results in a relational database, and presents the findings through a simple interactive dashboard.
+
 The v1 prototype uses a synthetic seller-feed dataset because a production marketplace dataset was not provided.
 
-2. Business Problem
+---
+
+# 2. Business Problem
+
 A multi-vendor marketplace receives product listings, pricing updates, and inventory feeds from thousands of sellers daily. Without a consistent validation workflow, incorrect or incomplete information can pass through the catalog process and become visible to customers.
+
 Examples include invalid prices, negative inventory, duplicate seller-product records, missing required fields, invalid categories, stale listings, and unusually large price changes.
-Problem Statement
+
+### Problem Statement
+
 Marketplace operations teams lack a centralized validation workflow that detects and prioritizes inconsistent product, pricing, and inventory data before it reaches the customer-facing catalog.
 
-Goal
-Build a lightweight validation and monitoring application that enables marketplace operations teams to:
-Detect common catalog data-quality problems automatically.
-Identify the severity and type of each detected issue.
-Identify sellers and products associated with repeated problems.
-Monitor overall catalog quality through clear KPIs.
-Investigate individual validation failures.
-Export validation results for operational review.
+### Goal
 
-3. Target Users
-Primary Users
-Marketplace Catalog / Operations Team
+Build a lightweight validation and monitoring application that enables marketplace operations teams to:
+
+- Detect common catalog data-quality problems automatically.
+- Identify the severity and type of each detected issue.
+- Identify sellers and products associated with repeated problems.
+- Monitor overall catalog quality through clear KPIs.
+- Investigate individual validation failures.
+- Export validation results for operational review.
+
+---
+
+# 3. Target Users
+
+## Primary Users
+
+### Marketplace Catalog / Operations Team
+
 Operations users use the dashboard to monitor overall catalog health and investigate invalid seller submissions.
-Key need: Quickly identify high-priority catalog issues and the sellers generating them.
-Secondary Users
-Seller Operations
+
+**Key need:** Quickly identify high-priority catalog issues and the sellers generating them.
+
+## Secondary Users
+
+### Seller Operations
+
 Seller operations teams can use issue-level and seller-level information to identify feeds requiring correction or follow-up.
-Data Analysts
+
+### Data Analysts
+
 Data analysts can use validation results and exported reports for further investigation.
-Product / Marketplace Managers
+
+### Product / Marketplace Managers
+
 Product and marketplace managers can use aggregate quality metrics to understand the overall health of the catalog.
 
+---
 
-4. Stakeholders
+# 4. Stakeholders
 
-Stakeholder
-Role
-Responsibility
-Marketplace Operations
-Primary User
-Monitor catalog quality and investigate issues
-Seller Operations
-Secondary User
-Follow up on problematic seller feeds
-Data Analysts
-Secondary User
-Analyze validation results
-Product / Marketplace Manager
-Approver / User
-Review catalog-quality KPIs
-Data / Engineering Team
-Data Owner
-Maintain pipeline and source data
-Project Owner
-Owner
-Define requirements and coordinate delivery
+| **Stakeholder** | **Role** | **Responsibility** |
+| ----------------------------- | --------------- | --------------------------------------------- |
+| Marketplace Operations | Primary User | Monitor catalog quality and investigate issues |
+| Seller Operations | Secondary User | Follow up on problematic seller feeds |
+| Data Analysts | Secondary User | Analyze validation results |
+| Product / Marketplace Manager | Approver / User | Review catalog-quality KPIs |
+| Data / Engineering Team | Data Owner | Maintain pipeline and source data |
+| Project Owner | Owner | Define requirements and coordinate delivery |
 
+---
 
-5. Business Impact
-Operational Impact
+# 5. Business Impact
+
+## Operational Impact
+
 A centralized validation workflow reduces the need to manually inspect seller data and makes recurring catalog-quality problems easier to identify.
-Decision-Making Impact
+
+## Decision-Making Impact
+
 The dashboard provides issue volume, severity, affected sellers, and affected products so operations users can prioritize investigation.
-User Experience Impact
+
+## User Experience Impact
+
 Operations users can move from an overall quality summary to filtered issue-level detail without manually combining separate reports.
-Business Impact
+
+## Business Impact
+
 Earlier detection of catalog-quality problems can reduce the likelihood of incorrect product, price, or inventory information reaching customers.
-Note: Exact financial impact is not claimed in v1 because no production baseline or customer-impact dataset was provided.
 
-6. Data Sources
+**Note:** Exact financial impact is not claimed in v1 because no production baseline or customer-impact dataset was provided.
+
+---
+
+# 6. Data Sources
+
 The prototype uses a synthetic seller catalog feed designed to represent the structure of a multi-vendor marketplace feed.
-Data Source
-Purpose
-Example Fields
-Validation Status
-Seller Catalog Feed
-Product, pricing, inventory and seller validation
-Seller ID, Product ID, SKU, Category, Price, Inventory
-Synthetic prototype data
-Validation Results
-Store detected quality issues
-Issue Type, Severity, Field, Message
-Generated by validation pipeline
-Quality Summary
-Provide marketplace-level KPIs
-Records, Valid, Invalid, Quality Score
-Generated by pipeline
 
-Important Data Validation Requirement
+| **Data Source** | **Purpose** | **Example Fields** | **Validation Status** |
+| ------------------- | ------------------------------------------------- | ------------------------------------------------------ | -------------------------------- |
+| Seller Catalog Feed | Product, pricing, inventory and seller validation | Seller ID, Product ID, SKU, Category, Price, Inventory | Synthetic prototype data |
+| Validation Results | Store detected quality issues | Issue Type, Severity, Field, Message | Generated by validation pipeline |
+| Quality Summary | Provide marketplace-level KPIs | Records, Valid, Invalid, Quality Score | Generated by pipeline |
+
+## Important Data Validation Requirement
+
 Before a production implementation, the data / engineering team should confirm:
-Available fields and their definitions.
-Data types and expected formats.
-Unique identifiers for seller, product, and feed records.
-Seller-product uniqueness rules.
-Approved product categories.
-Expected price and inventory constraints.
-Data refresh frequency.
-Historical data availability for anomaly detection.
 
-7. Catalog Data Quality Dimensions
+- Available fields and their definitions.
+- Data types and expected formats.
+- Unique identifiers for seller, product, and feed records.
+- Seller-product uniqueness rules.
+- Approved product categories.
+- Expected price and inventory constraints.
+- Data refresh frequency.
+- Historical data availability for anomaly detection.
+
+---
+
+# 7. Catalog Data Quality Dimensions
+
 The validation workflow focuses on the following dimensions:
 
+| **Dimension** | **Meaning** | **Example** |
+| ----------------- | ----------------------------------------------------------- | ------------------------ |
+| Completeness | Required information is present | Missing product name |
+| Validity | Values follow defined business rules | Negative price |
+| Consistency | Related values do not contradict each other | MRP below selling price |
+| Uniqueness | Records do not contain unintended duplicates | Duplicate seller-product |
+| Freshness | Records are updated within an expected period | Stale listing |
+| Anomaly Detection | Values are unusually different from normal product behavior | Extreme price deviation |
 
-Dimension
-Meaning
-Example
-Completeness
-Required information is present
-Missing product name
-Validity
-Values follow defined business rules
-Negative price
-Consistency
-Related values do not contradict each other
-MRP below selling price
-Uniqueness
-Records do not contain unintended duplicates
-Duplicate seller-product
-Freshness
-Records are updated within an expected period
-Stale listing
-Anomaly Detection
-Values are unusually different from normal product behavior
-Extreme price deviation
+---
 
+# 8. Key Performance Indicators (KPIs)
 
-8. Key Performance Indicators (KPIs)
-KPI
-Measurement Method
-Target
-Timeline
-Catalog Quality Score
-Valid records ÷ total records × 100
-Establish baseline
-Within 30 days
-Invalid Record Rate
-Invalid records ÷ total records × 100
-Establish baseline
-Within 30 days
-Critical Issue Count
-Count of critical validation issues
-Establish baseline
-Within 30 days
-Seller Issue Rate
-Seller issues ÷ seller records × 100
-Identify sellers requiring investigation
-Within 30 days
-Report Preparation Time
-Time required to prepare validation report
-Reduce manual effort
-Within 60 days
+| **KPI** | **Measurement Method** | **Target** | **Timeline** |
+| ----------------------- | ------------------------------------------ | ---------------------------------------- | -------------- |
+| Catalog Quality Score | Valid records ÷ total records × 100 | Establish baseline | Within 30 days |
+| Invalid Record Rate | Invalid records ÷ total records × 100 | Establish baseline | Within 30 days |
+| Critical Issue Count | Count of critical validation issues | Establish baseline | Within 30 days |
+| Seller Issue Rate | Seller issues ÷ seller records × 100 | Identify sellers requiring investigation | Within 30 days |
+| Report Preparation Time | Time required to prepare validation report | Reduce manual effort | Within 60 days |
 
+---
 
-9. User Stories
-US-01 — Catalog Overview
-As a marketplace operations user, I want to see overall catalog-quality KPIs, so that I can quickly understand the health of the seller feed.
+# 9. User Stories
 
-US-02 — Issue Analysis
-As an operations user, I want to view validation issues by type and severity, so that I can identify the most important problems.
-US-03 — Seller Investigation
-As a seller operations user, I want to identify sellers with repeated validation issues, so that I can investigate problematic feeds.
-US-04 — Product Investigation
-As an operations user, I want to view affected products and validation messages, so that I can understand exactly what is wrong.
-US-05 — Filtering
-As an operations user, I want to filter issues by seller, severity, and issue type, so that I can investigate a specific subset of the catalog.
-US-06 — Export
-As an operations user, I want to export filtered validation results, so that I can share or further analyze the findings.
-US-07 — Repeatable Validation
-As a data analyst, I want the validation pipeline to produce repeatable results, so that catalog quality can be evaluated consistently.
+### US-01 — Catalog Overview
 
-10. Functional Requirements
-FR-01 — Data Ingestion
+**As a marketplace operations user, I want to see overall catalog-quality KPIs, so that I can quickly understand the health of the seller feed.**
+
+### US-02 — Issue Analysis
+
+**As an operations user, I want to view validation issues by type and severity, so that I can identify the most important problems.**
+
+### US-03 — Seller Investigation
+
+**As a seller operations user, I want to identify sellers with repeated validation issues, so that I can investigate problematic feeds.**
+
+### US-04 — Product Investigation
+
+**As an operations user, I want to view affected products and validation messages, so that I can understand exactly what is wrong.**
+
+### US-05 — Filtering
+
+**As an operations user, I want to filter issues by seller, severity, and issue type, so that I can investigate a specific subset of the catalog.**
+
+### US-06 — Export
+
+**As an operations user, I want to export filtered validation results, so that I can share or further analyze the findings.**
+
+### US-07 — Repeatable Validation
+
+**As a data analyst, I want the validation pipeline to produce repeatable results, so that catalog quality can be evaluated consistently.**
+
+---
+
+# 10. Functional Requirements
+
+## FR-01 — Data Ingestion
+
 The system must read and process the provided seller catalog feed.
-Acceptance Criteria:
-CSV feed can be loaded successfully.
-Expected fields are available for validation.
-Records are preserved for processing and traceability.
-FR-02 — Required Field Validation
+
+**Acceptance Criteria:**
+
+- CSV feed can be loaded successfully.
+- Expected fields are available for validation.
+- Records are preserved for processing and traceability.
+
+## FR-02 — Required Field Validation
+
 The system must detect missing required fields.
-Acceptance Criteria:
-Missing seller, product, name, category, price, inventory, or update fields are detected.
-Each issue identifies the affected field.
-FR-03 — Pricing Validation
+
+**Acceptance Criteria:**
+
+- Missing seller, product, name, category, price, inventory, or update fields are detected.
+- Each issue identifies the affected field.
+
+## FR-03 — Pricing Validation
+
 The system must detect invalid and inconsistent pricing.
+
 The system must:
-Detect selling prices that are zero or negative.
-Detect cases where MRP is lower than selling price.
-Detect unusually large product-level price deviations.
-FR-04 — Inventory Validation
+
+- Detect selling prices that are zero or negative.
+- Detect cases where MRP is lower than selling price.
+- Detect unusually large product-level price deviations.
+
+## FR-04 — Inventory Validation
+
 The system must detect invalid inventory values.
-Acceptance Criteria:
-Negative inventory is detected.
-The affected seller and product are included in the issue result.
-FR-05 — Category Validation
+
+**Acceptance Criteria:**
+
+- Negative inventory is detected.
+- The affected seller and product are included in the issue result.
+
+## FR-05 — Category Validation
+
 The system must identify categories outside the approved category list.
-FR-06 — Duplicate Detection
+
+## FR-06 — Duplicate Detection
+
 The system must identify duplicate seller-product submissions.
+
 Product ID alone is not treated as globally unique because multiple sellers may legitimately sell the same product.
-FR-07 — Freshness Validation
+
+## FR-07 — Freshness Validation
+
 The system must identify listings whose last update is older than the prototype freshness threshold.
-FR-08 — Issue Classification
+
+## FR-08 — Issue Classification
+
 Each detected issue must contain:
-Issue type
-Severity
-Affected field
-Explanatory message
-FR-09 — Dashboard
+
+- Issue type
+- Severity
+- Affected field
+- Explanatory message
+
+## FR-09 — Dashboard
+
 The dashboard must:
-Display total records.
-Display valid and invalid records.
-Display overall quality score.
-Display critical issues.
-Display issues by type and severity.
-Display sellers with the highest number of issues.
-Display detailed validation issues.
-FR-10 — Filters
+
+- Display total records.
+- Display valid and invalid records.
+- Display overall quality score.
+- Display critical issues.
+- Display issues by type and severity.
+- Display sellers with the highest number of issues.
+- Display detailed validation issues.
+
+## FR-10 — Filters
+
 The dashboard must provide:
-Severity filter
-Issue type filter
-Seller search/filter
-FR-11 — Export
+
+- Severity filter
+- Issue type filter
+- Seller search/filter
+
+## FR-11 — Export
+
 Users must be able to download the currently filtered validation results as a CSV file.
-FR-12 — Automated Validation
+
+## FR-12 — Automated Validation
+
 The project should run its validation pipeline and basic tests through GitHub Actions on repository changes.
 
-11. Dashboard Layout
-Section 1 — KPI Cards
+---
+
+# 11. Dashboard Layout
+
+## Section 1 — KPI Cards
+
 Top-level cards:
-Records Processed
-Valid Records
-Invalid Records
-Quality Score
-Critical Issues
-Section 2 — Issue Analysis
+
+- Records Processed
+- Valid Records
+- Invalid Records
+- Quality Score
+- Critical Issues
+
+## Section 2 — Issue Analysis
+
 Display:
-Issues by Type
-Issues by Severity
-Section 3 — Seller Analysis
+
+- Issues by Type
+- Issues by Severity
+
+## Section 3 — Seller Analysis
+
 A table showing sellers with the highest number of validation issues and affected products.
-Section 4 — Issue Explorer
+
+## Section 4 — Issue Explorer
+
 A detailed table containing:
-Feed ID
-Seller ID
-Product ID
-SKU
-Issue Type
-Severity
-Affected Field
-Validation Message
-Section 5 — Export
+
+- Feed ID
+- Seller ID
+- Product ID
+- SKU
+- Issue Type
+- Severity
+- Affected Field
+- Validation Message
+
+## Section 5 — Export
+
 A CSV download action for the currently filtered issue set.
 
-12. Scope
-In Scope — v1.0
-Synthetic marketplace seller-feed dataset
-Batch CSV ingestion
-Data cleaning and validation
-Missing-field validation
-Pricing validation
-Inventory validation
-Category validation
-Duplicate seller-product detection
-Stale listing detection
-Basic price anomaly detection
-Severity classification
-SQLite storage
-Marketplace quality KPIs
-Seller-level issue analysis
-Streamlit dashboard
-Filtering and CSV export
-Basic automated tests
-GitHub Actions validation workflow
+---
 
-13. Out of Scope — v1.0
+# 12. Scope
+
+## In Scope — v1.0
+
+- Synthetic marketplace seller-feed dataset
+- Batch CSV ingestion
+- Data cleaning and validation
+- Missing-field validation
+- Pricing validation
+- Inventory validation
+- Category validation
+- Duplicate seller-product detection
+- Stale listing detection
+- Basic price anomaly detection
+- Severity classification
+- SQLite storage
+- Marketplace quality KPIs
+- Seller-level issue analysis
+- Streamlit dashboard
+- Filtering and CSV export
+- Basic automated tests
+- GitHub Actions validation workflow
+
+---
+
+# 13. Out of Scope — v1.0
+
 The following features will not be included in the first version:
-Real-time seller-feed ingestion
-Automatic correction of seller data
-Machine-learning-based anomaly detection
-Seller-facing portal
-Automated seller notifications
-Production-scale distributed data infrastructure
-Predictive catalog-quality forecasting
-Automated business decisions based on validation results
+
+- Real-time seller-feed ingestion
+- Automatic correction of seller data
+- Machine-learning-based anomaly detection
+- Seller-facing portal
+- Automated seller notifications
+- Production-scale distributed data infrastructure
+- Predictive catalog-quality forecasting
+- Automated business decisions based on validation results
+
 These capabilities may be considered for a future version if production requirements justify them.
 
-14. Data Workflow
-Step 1 — Data Ingestion
+---
+
+# 14. Data Workflow
+
+### Step 1 — Data Ingestion
+
 Load the seller catalog CSV into the Python processing pipeline.
+
 ↓
-Step 2 — Data Cleaning and Preparation
-Standardize input types.
-Parse dates.
-Normalize values required for validation.
-Prepare records for rule evaluation.
+
+### Step 2 — Data Cleaning and Preparation
+
+- Standardize input types.
+- Parse dates.
+- Normalize values required for validation.
+- Prepare records for rule evaluation.
+
 ↓
-Step 3 — Validation
+
+### Step 3 — Validation
+
 Run the defined validation rules against each record.
+
 ↓
-Step 4 — Issue Classification
+
+### Step 4 — Issue Classification
+
 Create issue records containing:
-Seller
-Product
-Issue type
-Severity
-Affected field
-Validation message
+
+- Seller
+- Product
+- Issue type
+- Severity
+- Affected field
+- Validation message
+
 ↓
-Step 5 — Storage
+
+### Step 5 — Storage
+
 Store:
-Raw data
-Valid data
-Invalid data
-Validation issues
-Quality summary
+
+- Raw data
+- Valid data
+- Invalid data
+- Validation issues
+- Quality summary
+
 in SQLite.
+
 ↓
-Step 6 — Dashboard
+
+### Step 6 — Dashboard
+
 Streamlit reads the stored results and presents:
-KPIs
-Charts
-Seller analysis
-Filters
-Issue-level details
+
+- KPIs
+- Charts
+- Seller analysis
+- Filters
+- Issue-level details
+
 ↓
-Step 7 — Automated Checks
+
+### Step 7 — Automated Checks
+
 GitHub Actions runs the pipeline and basic tests when changes are pushed to the repository.
 
-15. Technical Requirements
-Dashboard
-Streamlit
-Python
-Data Processing
-Python
-Pandas
-SQL
-Data Storage
-SQLite for prototype storage
-Testing / Automation
-Pytest
-GitHub Actions
-Deployment
+---
+
+# 15. Technical Requirements
+
+## Dashboard
+
+- Streamlit
+- Python
+
+## Data Processing
+
+- Python
+- Pandas
+- SQL
+
+## Data Storage
+
+- SQLite for prototype storage
+
+## Testing / Automation
+
+- Pytest
+- GitHub Actions
+
+## Deployment
+
 Lightweight Streamlit deployment for browser access.
 
-16. Non-Functional Requirements
-Performance
-Dashboard should load within a reasonable time for the prototype dataset.
-Filters should update efficiently.
-Data Accuracy
-Validation results must be repeatable.
-KPI calculations must derive from the processed validation data.
-Duplicate logic must distinguish legitimate multi-seller products from duplicate submissions.
-Usability
-KPIs should be visible immediately.
-Filters should be clearly labelled.
-Issue tables should contain enough context for investigation.
-Export actions should be clearly visible.
-Reliability
-Core validation rules should have automated tests.
-Pipeline failures should be visible.
+---
 
-17. Assumptions
-The supplied feed follows the documented column structure.
-Seller ID and Product ID are available for the records being validated.
-A seller can legitimately sell a product that another seller also sells.
-Selling price should be greater than zero.
-MRP should not be lower than selling price.
-Inventory should not be negative.
-The approved category list is known for the prototype.
-The synthetic dataset is suitable for demonstrating the validation workflow.
+# 16. Non-Functional Requirements
 
-18. Risks & Mitigation
-Risk
-Likelihood
-Impact
-Mitigation
-Synthetic data differs from production data
-High
-Medium
-Validate rules against real seller feeds before production use
-Seller-product uniqueness rules differ from business rules
-Medium
-High
-Confirm catalog key rules with marketplace operations
-Validation thresholds create false positives
-Medium
-Medium
-Review flagged records and tune thresholds using historical data
-Large feeds exceed prototype capacity
-Medium
-Medium
-Move to scalable storage and batch/stream processing
-Missing or inconsistent fields
-Medium
-High
-Add schema validation before business-rule validation
-Users need real-time alerts
-Low
-Medium
-Add notification workflow in a future version
+## Performance
 
+- Dashboard should load within a reasonable time for the prototype dataset.
+- Filters should update efficiently.
 
-19. Success Criteria
+## Data Accuracy
+
+- Validation results must be repeatable.
+- KPI calculations must derive from the processed validation data.
+- Duplicate logic must distinguish legitimate multi-seller products from duplicate submissions.
+
+## Usability
+
+- KPIs should be visible immediately.
+- Filters should be clearly labelled.
+- Issue tables should contain enough context for investigation.
+- Export actions should be clearly visible.
+
+## Reliability
+
+- Core validation rules should have automated tests.
+- Pipeline failures should be visible.
+
+---
+
+# 17. Assumptions
+
+1. The supplied feed follows the documented column structure.
+2. Seller ID and Product ID are available for the records being validated.
+3. A seller can legitimately sell a product that another seller also sells.
+4. Selling price should be greater than zero.
+5. MRP should not be lower than selling price.
+6. Inventory should not be negative.
+7. The approved category list is known for the prototype.
+8. The synthetic dataset is suitable for demonstrating the validation workflow.
+
+---
+
+# 18. Risks & Mitigation
+
+| **Risk** | **Likelihood** | **Impact** | **Mitigation** |
+| ---------------------------------------------------------- | -------------- | ---------- | --------------------------------------------------------------- |
+| Synthetic data differs from production data | High | Medium | Validate rules against real seller feeds before production use |
+| Seller-product uniqueness rules differ from business rules | Medium | High | Confirm catalog key rules with marketplace operations |
+| Validation thresholds create false positives | Medium | Medium | Review flagged records and tune thresholds using historical data |
+| Large feeds exceed prototype capacity | Medium | Medium | Move to scalable storage and batch/stream processing |
+| Missing or inconsistent fields | Medium | High | Add schema validation before business-rule validation |
+| Users need real-time alerts | Low | Medium | Add notification workflow in a future version |
+
+---
+
+# 19. Success Criteria
+
 The product will be considered successful when:
-The application successfully processes the supplied catalog feed.
-The validation engine detects the predefined quality issues.
-Detected issues contain severity and explanatory context.
-Validation results are stored in a queryable database.
-Dashboard KPIs match the processed dataset.
-Users can filter validation issues.
-Users can download filtered validation results.
-Basic automated tests pass.
-The application can be deployed and accessed through a web browser.
 
-20. MVP Definition
-Must Have
-Catalog feed ingestion
-Validation rules
-Severity classification
-Quality KPI cards
-Issue analysis
-Seller issue analysis
-Issue filtering
-CSV export
-SQLite storage
-Basic tests
-Could Have Later
-Direct feed upload
-Historical quality trends
-Automated alerts
-Advanced anomaly detection
-Seller feedback
-Resolution tracking
+- The application successfully processes the supplied catalog feed.
+- The validation engine detects the predefined quality issues.
+- Detected issues contain severity and explanatory context.
+- Validation results are stored in a queryable database.
+- Dashboard KPIs match the processed dataset.
+- Users can filter validation issues.
+- Users can download filtered validation results.
+- Basic automated tests pass.
+- The application can be deployed and accessed through a web browser.
 
-21. Future Enhancements — v2
+---
+
+# 20. MVP Definition
+
+## Must Have
+
+1. Catalog feed ingestion
+2. Validation rules
+3. Severity classification
+4. Quality KPI cards
+5. Issue analysis
+6. Seller issue analysis
+7. Issue filtering
+8. CSV export
+9. SQLite storage
+10. Basic tests
+
+## Could Have Later
+
+- Direct feed upload
+- Historical quality trends
+- Automated alerts
+- Advanced anomaly detection
+- Seller feedback
+- Resolution tracking
+
+---
+
+# 21. Future Enhancements — v2
+
 Potential future capabilities include:
-Direct CSV upload and validation from the dashboard.
-Historical quality monitoring and trend charts.
-Automated alerts for critical issues.
-Historical baseline-based anomaly detection.
-Seller-level quality history.
-Production database integration.
-Authentication and role-based access.
-Validation-result resolution workflow.
+
+- Direct CSV upload and validation from the dashboard.
+- Historical quality monitoring and trend charts.
+- Automated alerts for critical issues.
+- Historical baseline-based anomaly detection.
+- Seller-level quality history.
+- Production database integration.
+- Authentication and role-based access.
+- Validation-result resolution workflow.
+
 These features are intentionally excluded from v1 to maintain a focused and deliverable product scope.
 
-22. Acceptance Criteria
+---
+
+# 22. Acceptance Criteria
+
 The PRD/product will be considered complete when:
-Catalog feed can be loaded without manual data editing.
-Required-field checks work correctly.
-Pricing checks work correctly.
-Inventory checks work correctly.
-Category checks work correctly.
-Duplicate seller-product detection works correctly.
-Stale listing detection works correctly.
-Price anomaly detection works correctly.
-Severity classification is visible in the dashboard.
-Dashboard KPIs are populated from validation results.
-Seller issue analysis is available.
-Filters return the expected issue subset.
-CSV export produces the filtered results.
-Automated tests pass.
-The deployed application is accessible through a browser.
 
-23. Open Questions
+- Catalog feed can be loaded without manual data editing.
+- Required-field checks work correctly.
+- Pricing checks work correctly.
+- Inventory checks work correctly.
+- Category checks work correctly.
+- Duplicate seller-product detection works correctly.
+- Stale listing detection works correctly.
+- Price anomaly detection works correctly.
+- Severity classification is visible in the dashboard.
+- Dashboard KPIs are populated from validation results.
+- Seller issue analysis is available.
+- Filters return the expected issue subset.
+- CSV export produces the filtered results.
+- Automated tests pass.
+- The deployed application is accessible through a browser.
+
+---
+
+# 23. Open Questions
+
 Before a production implementation, the following questions should be answered:
-What is the production source of seller catalog feeds?
-What is the expected feed refresh frequency?
-What fields are mandatory for every product?
-What is the official definition of a duplicate listing?
-What are the approved product categories?
-What price-change threshold should trigger investigation?
-What freshness threshold should be used in production?
-Should validation results have a resolution status?
-Who should receive alerts for critical issues?
-What database and infrastructure are available for production?
 
-24. Stakeholder Approval
-Role
-Name
-Approval
-Marketplace Operations Owner
-TBD
-Pending
-Seller Operations Representative
-TBD
-Pending
-Data / Engineering Owner
-TBD
-Pending
-Project Owner
-TBD
-Pending
+1. What is the production source of seller catalog feeds?
+2. What is the expected feed refresh frequency?
+3. What fields are mandatory for every product?
+4. What is the official definition of a duplicate listing?
+5. What are the approved product categories?
+6. What price-change threshold should trigger investigation?
+7. What freshness threshold should be used in production?
+8. Should validation results have a resolution status?
+9. Who should receive alerts for critical issues?
+10. What database and infrastructure are available for production?
 
+---
 
-25. Final Product Vision
-The goal of this product is to create a single operational view of marketplace catalog quality.
+# 24. Stakeholder Approval
+
+| **Role** | **Name** | **Approval** |
+| -------------------------------- | -------- | ------------ |
+| Marketplace Operations Owner | TBD | Pending |
+| Seller Operations Representative | TBD | Pending |
+| Data / Engineering Owner | TBD | Pending |
+| Project Owner | TBD | Pending |
+
+---
+
+# 25. Final Product Vision
+
+The goal of this product is to create a **single operational view of marketplace catalog quality**.
+
 Instead of asking:
-"Which seller or product data is causing catalog problems?"
-Operations users should be able to open the dashboard and immediately see:
-How healthy the current catalog feed is.
-How many records are invalid.
-Which issue types occur most often.
-Which issues are critical.
-Which sellers generate the most problems.
-Which individual products and fields require investigation.
-The application does not automatically decide how sellers should be corrected. Instead, it provides structured evidence that helps operations teams investigate and act on catalog-quality problems.
 
+> **"Which seller or product data is causing catalog problems?"**
+
+Operations users should be able to open the dashboard and immediately see:
+
+- How healthy the current catalog feed is.
+- How many records are invalid.
+- Which issue types occur most often.
+- Which issues are critical.
+- Which sellers generate the most problems.
+- Which individual products and fields require investigation.
+
+The application does not automatically decide how sellers should be corrected. Instead, it provides structured evidence that helps operations teams investigate and act on catalog-quality problems.
